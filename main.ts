@@ -43,6 +43,23 @@ if (typeof url !== 'string' || !/^https:\/\/(x\.com|twitter\.com)\/[^/]+\/status
   process.exit(1);
 }
 
+// The post must be from the entrant's own public account, and the quote
+// target must be make.fun's own post: a URL from any other account, or a
+// quote of the wrong post, is not this entry.
+const handle = url.split('/')[3];
+if (handle !== 'creepin_eth') {
+  console.error(`POST.json names a post from @${handle}, not the entrant @creepin_eth`);
+  process.exit(1);
+}
+if (!/^https:\/\/(x\.com|twitter\.com)\/makefunai\/status\/\d+$/.test(SOURCE_POST)) {
+  console.error(`quote target is not make.fun's post (got: ${SOURCE_POST})`);
+  process.exit(1);
+}
+if (!/^[a-z]+(-[a-z]+)*$/.test(PLAY_CODE)) {
+  console.error(`play code is not well formed (got: ${PLAY_CODE})`);
+  process.exit(1);
+}
+
 mkdirSync(outDir, { recursive: true });
 writeFileSync(join(outDir, 'POST.json'), `${JSON.stringify({ url })}\n`, 'utf8');
 
